@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Akshu Server</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f0f1a;
+            color: #fff;
+            min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(90deg, #1a1a2e, #16213e);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #e94560, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .user-info span {
+            color: #888;
+        }
+        .logout-btn {
+            padding: 8px 20px;
+            background: rgba(233, 69, 96, 0.2);
+            border: 1px solid #e94560;
+            color: #e94560;
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        .logout-btn:hover {
+            background: #e94560;
+            color: white;
+        }
+        .container {
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.03);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .stat-card h3 {
+            font-size: 2rem;
+            color: #e94560;
+            margin-bottom: 5px;
+        }
+        .stat-card p {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        .section {
+            background: rgba(255,255,255,0.03);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        .section-header {
+            padding: 20px 25px;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section-header h2 {
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #e94560, #ff6b6b);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4);
+        }
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+        .btn-danger {
+            background: linear-gradient(45deg, #c0392b, #e74c3c);
+        }
+        .section-body {
+            padding: 25px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        th {
+            color: #888;
+            font-weight: 500;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+        td {
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+        .key-badge {
+            background: rgba(233, 69, 96, 0.2);
+            color: #e94560;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-family: monospace;
+        }
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+        .status-active {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: #1a1a2e;
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h2 {
+            font-size: 1.3rem;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+        }
+        .form-group textarea {
+            min-height: 200px;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #e94560;
+        }
+        .code-preview {
+            background: #0a0a14;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #2ecc71;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .api-info {
+            background: rgba(233, 69, 96, 0.1);
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+        }
+        .api-info code {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #e94560;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">⚡ AKSHU SERVER</div>
+        <div class="user-info">
+            <span>👤 Welcome, {{ admin_name }}</span>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card">
+                <h3>{{ keys|length }}</h3>
+                <p>🔑 Total Keys</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ scripts|length }}</h3>
+                <p>📜 Total Scripts</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ scripts.values()|selectattr('key_id')|list|length }}</h3>
+                <p>🔒 Encrypted Scripts</p>
+            </div>
+            <div class="stat-card">
+                <h3>Active</h3>
+                <p>🟢 Server Status</p>
+            </div>
+        </div>
+
+        <!-- Keys Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2>🔑 XOR Keys Management</h2>
+                <button class="btn" onclick="openKeyModal()">+ Create Key</button>
+            </div>
+            <div class="section-body">
+                {% if keys %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>XOR Key</th>
+                            <th>Created</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for key_id, key in keys.items() %}
+                        <tr>
+                            <td>{{ key.name }}</td>
+                            <td><span class="key-badge">{{ key.xor_key }}</span></td>
+                            <td>{{ key.created_at }}</td>
+                            <td><span class="status-badge status-active">{{ key.status }}</span></td>
+                            <td>
+                                <button class="btn btn-small btn-danger" onclick="deleteKey('{{ key_id }}')">Delete</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">🔑</div>
+                    <p>No keys created yet. Create your first XOR key!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Scripts Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2>📜 Script Management</h2>
+                <button class="btn" onclick="openScriptModal()">+ Add Script</button>
+            </div>
+            <div class="section-body">
+                {% if scripts %}
+                <div class="api-info">
+                    💡 <strong>API Endpoint:</strong> Send POST request to <code>/api/run/&lt;script_id&gt;</code> with JSON body <code>{"key": "your-xor-key"}</code> to execute script.
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Script ID</th>
+                            <th>Key Protected</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for script_id, script in scripts.items() %}
+                        <tr>
+                            <td>{{ script.name }}</td>
+                            <td><code style="color:#e94560;">{{ script_id }}</code></td>
+                            <td>{{ "🔒 Yes" if script.key_id else "🔓 No" }}</td>
+                            <td>{{ script.created_at }}</td>
+                            <td>
+                                <button class="btn btn-small" onclick="viewScript('{{ script_id }}')">View</button>
+                                <button class="btn btn-small btn-danger" onclick="deleteScript('{{ script_id }}')">Delete</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">📜</div>
+                    <p>No scripts added yet. Add your first Lua script!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Key Modal -->
+    <div class="modal" id="keyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🔑 Create XOR Key</h2>
+                <button class="close-btn" onclick="closeKeyModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Key Name</label>
+                <input type="text" id="keyName" placeholder="e.g., Premium Key 1">
+            </div>
+            <div class="form-group">
+                <label>XOR Key (Secret)</label>
+                <input type="text" id="xorKey" placeholder="e.g., AkshuSecret2026">
+            </div>
+            <button class="btn" onclick="createKey()">Create Key</button>
+        </div>
+    </div>
+
+    <!-- Create Script Modal -->
+    <div class="modal" id="scriptModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📜 Add Lua Script</h2>
+                <button class="close-btn" onclick="closeScriptModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Script Name</label>
+                <input type="text" id="scriptName" placeholder="e.g., Auto Farm">
+            </div>
+            <div class="form-group">
+                <label>Select XOR Key (Optional - for encryption)</label>
+                <select id="scriptKey">
+                    <option value="">-- No Encryption --</option>
+                    {% for key_id, key in keys.items() %}
+                    <option value="{{ key_id }}">{{ key.name }} ({{ key.xor_key }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Lua Script Code</label>
+                <textarea id="scriptCode" placeholder="-- Paste your Lua script here
+print('Hello from Akshu Server!')"></textarea>
+            </div>
+            <button class="btn" onclick="createScript()">Save Script</button>
+        </div>
+    </div>
+
+    <!-- View Script Modal -->
+    <div class="modal" id="viewModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📜 Script Preview</h2>
+                <button class="close-btn" onclick="closeViewModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Script ID</label>
+                <input type="text" id="viewScriptId" readonly>
+            </div>
+            <div class="form-group">
+                <label>Script Code</label>
+                <div class="code-preview" id="viewScriptCode"></div>
+            </div>
+            <div class="api-info">
+                <strong>Run URL:</strong> <code id="runUrl"></code>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal Functions
+        function openKeyModal() { document.getElementById('keyModal').classList.add('active'); }
+        function closeKeyModal() { document.getElementById('keyModal').classList.remove('active'); }
+        function openScriptModal() { document.getElementById('scriptModal').classList.add('active'); }
+        function closeScriptModal() { document.getElementById('scriptModal').classList.remove('active'); }
+        function closeViewModal() { document.getElementById('viewModal').classList.remove('active'); }
+
+        // Create Key
+        async function createKey() {
+            const name = document.getElementById('keyName').value.trim();
+            const xorKey = document.getElementById('xorKey').value.trim();
+
+            if (!name || !xorKey) {
+                alert('Please fill all fields!');
+                return;
+            }
+
+            const res = await fetch('/api/keys', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name, xor_key: xorKey})
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                alert('✅ Key created successfully!');
+                location.reload();
+            } else {
+                alert('❌ Error: ' + data.error);
+            }
+        }
+
+        // Create Script
+        async function createScript() {
+            const name = document.getElementById('scriptName').value.trim();
+            const code = document.getElementById('scriptCode').value.trim();
+            const keyId = document.getElementById('scriptKey').value;
+
+            if (!name || !code) {
+                alert('Please fill all fields!');
+                return;
+            }
+
+            const res = await fetch('/api/scripts', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name, code, key_id: keyId})
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                alert('✅ Script saved successfully!');
+                location.reload();
+            } else {
+                alert('❌ Error: ' + data.error);
+            }
+        }
+
+        // Delete Key
+        async function deleteKey(keyId) {
+            if (!confirm('Are you sure you want to delete this key?')) return;
+
+            const res = await fetch('/api/keys/' + keyId, {method: 'DELETE'});
+            const data = await res.json();
+            if (data.success) location.reload();
+        }
+
+        // Delete Script
+        async function deleteScript(scriptId) {
+            if (!confirm('Are you sure you want to delete this script?')) return;
+
+            const res = await fetch('/api/scripts/' + scriptId, {method: 'DELETE'});
+            const data = await res.json();
+            if (data.success) location.reload();
+        }
+
+        // View Script
+        async function viewScript(scriptId) {
+            const res = await fetch('/api/scripts');
+            const data = await res.json();
+            if (data.success && data.scripts[scriptId]) {
+                const script = data.scripts[scriptId];
+                document.getElementById('viewScriptId').value = scriptId;
+                document.getElementById('viewScriptCode').textContent = script.code;
+                document.getElementById('runUrl').textContent = window.location.origin + '/api/run/' + scriptId;
+                document.getElementById('viewModal').classList.add('active');
+            }
+        }
+
+        // Close modals on outside click
+        window.onclick = function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>
